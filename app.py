@@ -20,4 +20,3 @@ def load_jobs_from_db():
     return jobs
 
 
-sql
