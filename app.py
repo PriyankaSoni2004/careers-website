@@ -1,40 +1,22 @@
-from flask import Flask, render_template, jsonify
-
-from flask import Flask
-
-app = Flask(__name__)
-JOBS = [{
-  'id': 1,
-  'title': 'Data Analyst',
-  'location': 'Bengaluru, India',
-  'salary': 'Rs. 10,00,000'
-}, {
-  'id': 2,
-  'title': 'Data Scientist',
-  'location': 'Delhi, India',
-  'salary': 'Rs 15,00,000'
-}, {
-  'id': 3,
-  'title': 'FrontEnd Engineer',
-  'location': 'Remote',
-  'salary': '13,00,000'
-}, {
-  'id': 4,
-  'title': 'Backend Engineer',
-  'location': 'San Francisco, USA',
-  'salary': '$120,000'
-}]
+from sqlalchemy import create_engine, text
 
 
-@app.route("/")
-def hello_world():
-  return render_template('home.html', jobs=JOBS, company_name="Jovian")
+db_connection_string="mysql+pymysql://y8f8j8l7r0qym086yy8o:pscale_pw_ewf5HK7FQbclUxfTcalE3GCpb10rSK03CZ3jSOHRNP8@aws.connect.psdb.cloud/joviancareers?charset=utf8mb4"
 
 
-@app.route("/api/jobs")
-def list_jobs():
-  return jsonify(JOBS)
+engine = create_engine(db_connection_string ,
+  connect_args={
+    "ssl" :{
+      "ssl_ca":"/etc/ssl/cert.pem"
+    }
+  })
+
+def load_jobs_from_db():
+  with engine.connect() as conn:
+    result = conn.execute(text("select * from jobs"))
+    jobs=[]
+    for row in result.all():
+      jobs.append(dict(row))
+    return jobs
 
 
-if __name__ == "__main__":
-  app.run(host="0.0.0.0", debug=True)
